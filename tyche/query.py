@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import pickle
-from simulation import history_to_vec
+from .simulation import history_to_vec
 import diskcache as dc
 import os
 

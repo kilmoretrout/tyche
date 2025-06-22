@@ -2,8 +2,8 @@
 import diskcache as dc
 import numpy as np
 import os
-from simulation import cards
-from query import QueryTree
+from .simulation import cards
+from .query import QueryTree
 
 # -*- coding: utf-8 -*-
 import ctypes

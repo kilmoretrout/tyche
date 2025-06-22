@@ -245,7 +245,7 @@ import networkx as nx
 from collections import deque
 import copy
 import pickle
-from tabplayers import TabularStrategy
+from .tabplayers import TabularStrategy
 from scipy.interpolate import interp1d
 
 N_BUCKETS = [169, 2048, 2048, 2012]

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.spatial.distance import squareform
 
-from games import Simulator  # Your game logic
+from tyche import Simulator
 st.set_page_config(layout="wide")
 
 import streamlit.components.v1 as components
@@ -110,14 +110,12 @@ if st.sidebar.button("🔄 New Game"):
     new_game()
 
 # --- Header Info ---
-st.title("♠️ No Limit Hold'em Poker")
+st.title("♠️ TycheGUI v1.0 - 6 player No-Limit")
 
 # --- Main Layout ---
 table_col, strat_col = st.columns([3, 2])
 
 with table_col:
-    st.markdown("### 🃏 Poker Table")
-
     # --- Player Positioning Logic (REVISED) ---
     n = g.n_players
     player_divs = ""
@@ -307,19 +305,59 @@ with info_col:
     # --- Manual Hole Card Selection for Current Player ---
     st.markdown("### 🔄 Change Hole Cards")
 
-    available_cards = [c for c in cards if c not in st.session_state.board and all(c not in h for h in st.session_state.hands)]
+    available_cards = [c for c in cards if c not in st.session_state.board]
 
     # Current hand (default selection)
     current_hand = st.session_state.hands[cp]
-    default1 = available_cards.index(current_hand[0]) if current_hand[0] in available_cards else 0
-    default2 = available_cards.index(current_hand[1]) if current_hand[1] in available_cards else 1
+    default1 = available_cards.index(current_hand[0]) 
+    default2 = available_cards.index(current_hand[1])
 
     card1 = st.selectbox("Card 1", options=available_cards, index=default1, key="card1_select")
-    card2 = st.selectbox("Card 2", options=[c for c in available_cards if c != card1], index=default2 if default2 != default1 else 0, key="card2_select")
+    card2 = st.selectbox("Card 2", options=[c for c in available_cards if c != card1], index=default2, key="card2_select")
 
     if st.button("♠️ Set Hole Cards"):
         st.session_state.hands[cp] = [card1, card2]
         st.rerun()
+        
+    if len(st.session_state.board) > 0:
+        st.markdown("#### 🔄 Change Board Cards")
+    
+        holes_ = list(st.session_state.hands[0])
+        for k in range(1, len(st.session_state.hands)):
+            holes_ += list(st.session_state.hands[k])
+        
+        # 3. Available cards for the board can't be in the current player's hand.
+        card_pool = [c for c in cards if c not in holes_]
+        
+        # This list will hold the new selections from the UI
+        new_board_selection = []
+        
+        # Use columns for a tidy layout
+        board_cols = st.columns(len(st.session_state.board))
+        
+        # 4. Create a dropdown for each card currently on the board.
+        for i, card_on_board in enumerate(st.session_state.board):
+            with board_cols[i]:
+                # Options for THIS dropdown must exclude cards already picked for the new board
+                options = [c for c in card_pool if c not in new_board_selection]
+                
+                # Find the index for the default value
+                default_index = options.index(card_on_board)
+                
+                # Create the selectbox for the current board position
+                selected_card = st.selectbox(
+                    f"Board Card {i+1}", 
+                    options=options, 
+                    index=default_index, 
+                    key=f"board_card_select_{i}"
+                )
+                # Add the chosen card to our list of new selections
+                new_board_selection.append(selected_card)
+    
+        # 5. The button to confirm the changes.
+        if st.button("♦️ Set Board Cards"):
+            st.session_state.board = new_board_selection
+            st.rerun()
     
 # --- Action Buttons ---
 with action_col:
@@ -364,8 +402,24 @@ with action_col:
     def deal_board_for_new_round(prev, new):
         if new > prev:
             board = st.session_state.board
-            if new == 1: board += st.session_state.deck.deal(3)
-            elif new in [2, 3]: board += st.session_state.deck.deal(1)
+            
+            # no conflicts
+            holes_ = list(st.session_state.hands[0])
+            for k in range(1, len(st.session_state.hands)):
+                holes_ += list(st.session_state.hands[k])
+                
+            holes_ += board
+            
+            to_choose = [u for u in cards if not (u in holes_)]
+            ii = range(len(to_choose))
+            
+            if new == 1:
+                _ = [to_choose[u] for u in list(np.random.choice(ii, 3, replace = False))]
+                board += _
+            elif new in [2, 3]:
+                board += to_choose[np.random.choice(ii)]
+                
+
 
     if fold:
         prev = g.round
