@@ -7,6 +7,29 @@ from .query import QueryTree
 
 # -*- coding: utf-8 -*-
 import ctypes
+import configparser
+
+def get_strategy_from_config(config_file_path):
+    """
+    Reads the 'strategy' item from the 'settings' section of a config file.
+
+    Args:
+        config_file_path (str): The path to the configuration file.
+
+    Returns:
+        str: The value of the 'strategy' item, or None if not found.
+    """
+    config = configparser.ConfigParser()
+    try:
+        config.read(config_file_path)
+        if 'settings' in config and 'strategy' in config['settings']:
+            return config['settings']['strategy']
+        else:
+            print(f"Warning: 'strategy' not found in the 'settings' section of {config_file_path}")
+            return None
+    except configparser.Error as e:
+        print(f"Error reading config file {config_file_path}: {e}")
+        return None
 
 lib = ctypes.CDLL('./libhandindexer.so')
 
@@ -52,7 +75,7 @@ class HandIndexer:
         return index_out.value
 
 class TabularStrategy(object):
-    def __init__(self, idir = '/mirror/src/cfrrust/games/strategy'):
+    def __init__(self, idir = get_strategy_from_config('settings.config')):
         idirs = [os.path.join(idir, u) for u in ['preflop', 'flop', 'turn', 'river']]
         
         self.trees = [QueryTree(os.path.join(u, 'ball.tree'), u) for u in idirs]
@@ -61,10 +84,10 @@ class TabularStrategy(object):
                               HandIndexer(3, [2, 3, 1]), 
                               HandIndexer(4, [2, 3, 1, 1])]
         
-        self.buckets = [np.load('/mirror/src/cfrrust/rust_buckets/preflop.npz')['lu'], 
-                        np.load('/mirror/src/cfrrust/rust_buckets/flop.npz')['lu'], 
-                        np.load('/mirror/src/cfrrust/rust_buckets/turn.npz')['lu'], 
-                        np.load('/mirror/src/cfrrust/rust_buckets/river.npz')['lu']]
+        self.buckets = [np.load(os.path.join(idir, 'buckets/preflop.npz'))['lu'], 
+                        np.load(os.path.join(idir, 'buckets/flop.npz'))['lu'], 
+                        np.load(os.path.join(idir, 'buckets/river.npz'))['lu'], 
+                        np.load(os.path.join(idir, 'buckets/turn.npz'))['lu']]
         starting_cache = dc.Cache(os.path.join(idir, 'preflop/0'))
 
         self.start = starting_cache['']
