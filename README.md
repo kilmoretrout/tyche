@@ -11,6 +11,7 @@ Tyche is software that queries a pre-computed CFR table for 6-player No-Limit Te
 ### Downloading the tables
 
 The tables are available for purchase at (see ```docs/methods.md``` for their technical specifications):
+https://www.patreon.com/c/tychepoker/shop
 
 The uncompressed tables and buckets take up roughly ~ 105 Gb of disk space at current (9.2 Gb compressed).  The file location of the tables directory should be specified in ```tyche/settings.config``` in the root of the repository.
 
