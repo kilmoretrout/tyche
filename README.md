@@ -18,6 +18,8 @@ The uncompressed tables and buckets take up roughly ~ 105 Gb of disk space at cu
 
 ```
 conda create -n "tyche" python=3.11
+git clone https://github.com/kilmoretrout/tyche.git
+cd tyche/
 python3 setup.py install
 ```
 
