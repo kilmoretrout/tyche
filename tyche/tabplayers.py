@@ -10,7 +10,9 @@ import ctypes
 import configparser
 import sys
 
-def get_strategy_from_config(config_file_path):
+import importlib.resources
+
+def get_strategy_from_config(config_file_path = importlib.resources.files('tyche').joinpath('settings.config')):
     """
     Reads the 'strategy' item from the 'settings' section of a config file.
 
@@ -89,7 +91,7 @@ class HandIndexer:
         return index_out.value
 
 class TabularStrategy(object):
-    def __init__(self, idir = get_strategy_from_config('settings.config')):
+    def __init__(self, idir = get_strategy_from_config()):
         idirs = [os.path.join(os.path.join(idir, 'strategy'), u) for u in ['preflop', 'flop', 'turn', 'river']]
         
         self.trees = [QueryTree(os.path.join(u, 'ball.tree'), u) for u in idirs]
