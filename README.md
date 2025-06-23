@@ -46,13 +46,13 @@ cards = list(itertools.product(ranks, suits))
 cards = [u + v for (u, v) in cards]
 
 from tyche import TabularStrategy
-strat = TabularStrategy() # will load from the default location in settings.config
+strat = TabularStrategy() # will load from the default location in settings.config, can take a little while
 
 # strategy for the history of four folds, street = 0 (preflop), cards = [2s, 2h]
 # p: ndarray, (169, n_actions), counterfactual regrets for each action
 # idx: int, bucket or index of the private state. learned strategy is p[idx]
 # actions: list[str], list of actions for this node in the game tree
-p, idx, actions = strat.get('ffff', 0, [0, 1])
+p, idx, actions = strat.get('ffff', 0, [0, 1]) # fast
 
 print(actions)
 # f = fold, c = check / call
@@ -66,7 +66,7 @@ print(p[idx])
  6.90683499e-02 9.83780832e-04 5.29770739e-04 9.63865954e-04
  2.08038301e-03]
 
-# we can get the unormalized regrets as well:
+# we can get the unnormalized regrets as well:
 p, _, _ = strat.get('ffff', 0, [0, 1], norm = False)
 
 print(p[idx])
