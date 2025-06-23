@@ -8,6 +8,7 @@ from .query import QueryTree
 # -*- coding: utf-8 -*-
 import ctypes
 import configparser
+import sys
 
 def get_strategy_from_config(config_file_path):
     """
@@ -31,7 +32,20 @@ def get_strategy_from_config(config_file_path):
         print(f"Error reading config file {config_file_path}: {e}")
         return None
 
-lib = ctypes.CDLL('./libhandindexer.so')
+# Get the absolute path to the directory containing this script
+package_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the path to the shared library
+library_path = os.path.join(package_dir, 'lib', 'libhandindexer.so')
+
+# Load the library
+try:
+    lib = ctypes.CDLL(library_path)
+    # You can now use your library's functions, e.g., lib.some_function()
+except OSError as e:
+    print(f"Error loading library: {e}")
+    sys.exit()
+    # Handle the error appropriately
 
 MAX_ROUNDS = 4
 SUITS = 4
@@ -76,7 +90,7 @@ class HandIndexer:
 
 class TabularStrategy(object):
     def __init__(self, idir = get_strategy_from_config('settings.config')):
-        idirs = [os.path.join(idir, u) for u in ['preflop', 'flop', 'turn', 'river']]
+        idirs = [os.path.join(os.path.join(idir, 'strategy'), u) for u in ['preflop', 'flop', 'turn', 'river']]
         
         self.trees = [QueryTree(os.path.join(u, 'ball.tree'), u) for u in idirs]
         self.hand_indexers = [HandIndexer(1, [2]), 
@@ -88,7 +102,7 @@ class TabularStrategy(object):
                         np.load(os.path.join(idir, 'buckets/flop.npz'))['lu'], 
                         np.load(os.path.join(idir, 'buckets/river.npz'))['lu'], 
                         np.load(os.path.join(idir, 'buckets/turn.npz'))['lu']]
-        starting_cache = dc.Cache(os.path.join(idir, 'preflop/0'))
+        starting_cache = dc.Cache(os.path.join(os.path.join(idir, 'strategy'), 'preflop/0'))
 
         self.start = starting_cache['']
         
