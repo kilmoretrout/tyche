@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-After running setup.py or from the repos root:
+From the repos root:
 
 ```
 import itertools
