@@ -108,7 +108,7 @@ class TabularStrategy(object):
 
         self.start = starting_cache['']
         
-    def get(self, history, street, board):        
+    def get(self, history, street, board, norm = True):        
 
         hi = self.hand_indexers[street]
         
@@ -118,9 +118,14 @@ class TabularStrategy(object):
 
         if history != '':
             q = self.trees[street]
-            p, actions = q.retrieve(history)
+            p, actions = q.retrieve(history, norm)
+            
+            p = np.array(p)
         else:
             p, actions = self.start
+            p = np.array(p)
+            if norm:
+                p = p / p.sum(-1).reshape(-1, 1)
         
         return p, idx, actions
     

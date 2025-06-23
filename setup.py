@@ -14,7 +14,7 @@ setup(
     include_package_data=True,
     package_data={
         # Include all .so files from the 'lib' directory within any package
-        'tyche': ['lib/*.so'],
+        'tyche': ['lib/*.so', '*.config'],
     },
     classifiers=[
         'Programming Language :: Python :: 3',

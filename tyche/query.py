@@ -7,11 +7,12 @@ import os
 
 possible_actions = [0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0, -1.0]
 
-def format_ra(regrets, actions):
+def format_ra(regrets, actions, norm = True):
     ii = np.where(np.sum(regrets, -1) == 0.)[-1]
 
     regrets[ii] = np.ones(regrets.shape[1]) / regrets.shape[1]
-    regrets = regrets / np.sum(regrets, -1).reshape(-1, 1)
+    if norm:
+        regrets = regrets / np.sum(regrets, -1).reshape(-1, 1)
     
     y_ = np.zeros((regrets.shape[0], len(possible_actions) + 2))
     action_ii = []
@@ -34,7 +35,7 @@ class QueryTree(object):
         self.keys = pickle.load(open(ifile, 'rb'))
         self.idir = idir
     
-    def retrieve(self, history):
+    def retrieve(self, history, norm = True):
         h, L = history_to_vec(history)
         h = h.flatten().reshape(1, -1)
         
@@ -53,7 +54,7 @@ class QueryTree(object):
         if (di == 0):
             regrets, actions = cache[ki]
             
-            y = format_ra(regrets, actions)
+            y = format_ra(regrets, actions, norm)
         
         else:
             if di < dj:
@@ -65,10 +66,10 @@ class QueryTree(object):
                 wi = 1 - wj
             
             regrets_i, actions = cache[ki]
-            yi = format_ra(regrets_i, actions)
+            yi = format_ra(regrets_i, actions, norm)
             
             regrets_j, actions_j = cache[kj]
-            yj = format_ra(regrets_j, actions_j)
+            yj = format_ra(regrets_j, actions_j, norm)
         
             y = wi * yi + wj * yj
             

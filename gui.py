@@ -16,8 +16,33 @@ st.set_page_config(layout="wide")
 
 import streamlit.components.v1 as components
 
-def plot_strategy(actions, p):
+def make_pretty(action, game):
+    if action == 'c':
+        action = "check / call"
+    elif action == 'f':
+        action = "fold"
+    elif ("r" in action):
+        f = float(action.replace('(', '').replace(')', '').replace('r', ''))
+        
+        if f > 0:
+            a = game.raise_amt
+            action = "raise by ${0:.2f}".format(f * a * st.session_state.bb_dollars)
+        else:
+            action = "all-in"
+    elif ("b" in action):
+        f = float(action.replace('(', '').replace(')', '').replace('b', ''))
+    
+        if f > 0:
+            a = game.pot
+            action = "bet ${0:.2f}".format(f * a * st.session_state.bb_dollars)
+        else:
+            action = "all-in"
+    return action
+
+def plot_strategy(actions, p, game):
     st.markdown("### Strategy")
+    actions = [make_pretty(u, game) for u in actions]
+    
     strategy = dict(zip(actions, p))
     
     df = pd.DataFrame({'Action': strategy.keys(), 'Probability': strategy.values()})
@@ -288,10 +313,13 @@ with strat_col:
                 
         p = p / p.sum(-1).reshape(-1, 1)
         
-        st.session_state.pr = np.array(pr)
+        pr = np.array(pr)
+        pr = pr / pr.sum(-1).reshape(-1, 1)
+        
+        st.session_state.pr = pr
         st.session_state.actions = actions
         
-        plot_strategy(actions, p[idx])
+        plot_strategy(actions, p[idx], st.session_state.game)
     
 # --- Gameplay Row: Info | Actions | Strategy ---
 # st.markdown("## 🎮")
@@ -309,11 +337,15 @@ with info_col:
 
     # Current hand (default selection)
     current_hand = st.session_state.hands[cp]
-    default1 = available_cards.index(current_hand[0]) 
-    default2 = available_cards.index(current_hand[1])
+    
+    options1 = [c for c in cards if c not in st.session_state.board]
+    default1 = options1.index(current_hand[0])
 
-    card1 = st.selectbox("Card 1", options=available_cards, index=default1, key="card1_select")
-    card2 = st.selectbox("Card 2", options=[c for c in available_cards if c != card1], index=default2, key="card2_select")
+    options2 = [c for c in cards if ((c not in st.session_state.board) and (c != current_hand[0]))]
+    default2 = options2.index(current_hand[1])
+
+    card1 = st.selectbox("Card 1", options=options1, index=default1, key="card1_select")
+    card2 = st.selectbox("Card 2", options=options2, index=default2, key="card2_select")
 
     if st.button("♠️ Set Hole Cards"):
         st.session_state.hands[cp] = [card1, card2]
@@ -486,6 +518,27 @@ with action_col:
     st.markdown("### History")    
     st.text(st.session_state.history)
         
+with st.expander("Strategy over possible holes"):
+    st.markdown("### Strategy Heatmap (52x52)")
+    
+    pretty_actions = [make_pretty(u, st.session_state.game) for u in st.session_state.actions]
+    n_raises = len([u for u in pretty_actions if (("bet" in u) or ("raise" in u))])
+    
+    pretty_actions += ["any raise / bet"]
+    
+    selected_action_index = st.selectbox("Action:", list(range(len(pretty_actions))), format_func = lambda x: pretty_actions[x])
+    
+    if selected_action_index == len(pretty_actions) - 1:
+        prob_matrix = squareform(st.session_state.pr[:,-n_raises:].sum(-1))
+    else:
+        prob_matrix = squareform(st.session_state.pr[:,selected_action_index])
+    
+    fig, ax = plt.subplots(figsize=(8, 8))
+    sns.heatmap(prob_matrix, cmap="viridis", xticklabels=cards, yticklabels=cards, ax=ax)
+    ax.set_xlabel("Card 1")
+    ax.set_ylabel("Card 2")
+    st.pyplot(fig, use_container_width=True)
+    
 # The expander acts as a container
 with st.expander("Reach probabilities", expanded=True):
     st.markdown("### Reach Distribution Viewer")
