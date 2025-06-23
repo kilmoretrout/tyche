@@ -18,12 +18,22 @@ The uncompressed tables and buckets take up roughly ~ 105 Gb of disk space at cu
 
 ```
 conda create -n "tyche" python=3.11
-pip install -r requirements.txt
+python3 setup.py install
 ```
 
 ## Usage
 
-From the repos root:
+### GUI
+
+```
+streamlit run gui.py
+```
+
+See ```docs/gui.md``` for more info.
+
+### Using the Python library
+
+Getting the strategy for a given history and public state:
 
 ```
 import itertools
@@ -47,5 +57,13 @@ p, idx, actions = strat.get('ffff', 0, [0, 1])
 print(actions)
 # f = fold, c = check / call
 # raises are in terms of the previous raise, bets in terms of the pot, and r(-1) or b(-1) means all-in
-['f', 'c', 'r(1.0000)', 'r(1.5000)', 'r(2.0000)', 'r(3.0000)', 'r(4.0000)', 'r(6.0000)', 'r(8.0000)', 'r(12.0000)', 'r(-1.0)']
+# ['f', 'c', 'r(1.0000)', 'r(1.5000)', 'r(2.0000)', 'r(3.0000)', 'r(4.0000)', 'r(6.0000)', 'r(8.0000)', 'r(12.0000)', 'r(-1.0)']
+
+print(p[idx])
+"""
+[5.27311873e-04 4.95993020e-03 0.00000000e+00 0.00000000e+00
+ 8.39730501e-01 1.09757693e-03 7.95078352e-02 5.50571713e-04
+ 6.90683499e-02 9.83780832e-04 5.29770739e-04 9.63865954e-04
+ 2.08038301e-03]
+"""
 ```
