@@ -38,14 +38,14 @@ class QueryTree(object):
     def retrieve(self, history, norm = True):
         h, L = history_to_vec(history)
         h = h.flatten().reshape(1, -1)
-        
-       
+               
         nbrs, keys_, idir = self.keys[L]
         idir = idir.split('/')[-1]
         
         cache = dc.Cache(os.path.join(self.idir, idir))
         
         d, ii = nbrs.kneighbors(h)
+        
         i, j = ii[0]
         di, dj = d[0]
         ki = keys_[i]

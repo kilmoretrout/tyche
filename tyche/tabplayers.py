@@ -102,8 +102,8 @@ class TabularStrategy(object):
         
         self.buckets = [np.load(os.path.join(idir, 'buckets/preflop.npz'))['lu'], 
                         np.load(os.path.join(idir, 'buckets/flop.npz'))['lu'], 
-                        np.load(os.path.join(idir, 'buckets/river.npz'))['lu'], 
-                        np.load(os.path.join(idir, 'buckets/turn.npz'))['lu']]
+                        np.load(os.path.join(idir, 'buckets/turn.npz'))['lu'], 
+                        np.load(os.path.join(idir, 'buckets/river.npz'))['lu']]
         starting_cache = dc.Cache(os.path.join(os.path.join(idir, 'strategy'), 'preflop/0'))
 
         self.start = starting_cache['']

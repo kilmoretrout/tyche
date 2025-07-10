@@ -251,7 +251,7 @@ from scipy.interpolate import interp1d
 N_BUCKETS = [169, 2048, 2048, 2012]
 
 # for keeping track of reach and generating subtrees
-class Simulator(object):
+class NLHoldemSimulator(object):
     def __init__(self, strat = None, reentrant_round = 0):
         self.reentrant_round = reentrant_round
         
@@ -331,6 +331,8 @@ class Simulator(object):
                 self.indices.append(self.strat.buckets[self.game.round][self.strat.hand_indexers[self.game.round].index([i, j] + self.board)])
                 self.reachable.append(ix)
     
+        
+    # deprecated
     def write_subtree(self, game, ofile, write_regrets = False):
         # save the reach
         np.savez(ofile.split('.')[0] + '_reach.npz', reach = self.reach,
@@ -456,7 +458,7 @@ if __name__ == '__main__':
     t0 = time.time()
 
     print('loading strategy...')    
-    sim = Simulator()
+    sim = NLHoldemSimulator()
     
     print('parsing: ffffcc -> (some board)')
     sim.parse_action('f')

@@ -249,7 +249,7 @@ class NLSimulator(object):
                     prev_raise = 4
                 
             return self.state.stacks[self.state.actor_index] / prev_raise
-        
+    
 class FlowGame(NLSimulator):
     def __init__(self, n_players = 2):
         super().__init__(n_players = n_players)
