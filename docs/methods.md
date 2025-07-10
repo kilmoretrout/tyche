@@ -50,7 +50,7 @@ Reentrant round: preflop
 Max total raises: 5
 
 ### Four folds, 2 players
-| Round  | Bets (pot) | Raises (previous bet) | Max Raises |
+| Round  | Bets (pot) | Raises (previous raise / bet) | Max Raises |
 |----------|-------|--------|--------|
 | Preflop   | ---  | 1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0     |   3    |
 | Flop      | 0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0  | 1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 12.0     |    2    | 
